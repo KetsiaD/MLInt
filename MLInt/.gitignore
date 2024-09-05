@@ -1,0 +1,42 @@
+# Visual Studio Code
+.vscode/
+.history/
+*.code-workspace
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+node_modules/
+node_modules/
+
+# Dotenv environment variables file
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# ASP.NET Core
+bin/
+obj/
+wwwroot/uploads/
+wwwroot/lib/
+wwwroot/css/
+wwwroot/js/
+
+# Rider
+.idea/
+.idea/*
+
+# VS Code
+.vscode/
