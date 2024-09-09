@@ -22,28 +22,26 @@ public class HomeController : Controller
         {
             model.FileName = uploadedFile.FileName;
 
-            // Create a JSON string with the file name
+            //Creating the JSON file
             var jsonResult = JsonConvert.SerializeObject(new { FileSubmittedName = model.FileName });
             var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
             Directory.CreateDirectory(uploadsPath); // Ensure the directory exists
-
+            var filePath = Path.Combine(uploadsPath, uploadedFile.FileName);
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await uploadedFile.CopyToAsync(fileStream);
+            }
+            //defining the name and path of the json file
             var jsonFileName = $"{Path.GetFileNameWithoutExtension(uploadedFile.FileName)}.json";
             var jsonFilePath = Path.Combine(uploadsPath, jsonFileName);
 
-        // Save the JSON file
+  
             await System.IO.File.WriteAllTextAsync(jsonFilePath, jsonResult);
 
         // Download the JSON file
             return File(System.IO.File.ReadAllBytes(jsonFilePath), "application/json", jsonFileName);
 
-            // Define the file path to save the JSON file
-            //var jsonFilePath = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", $"{Path.GetFileNameWithoutExtension(uploadedFile.FileName)}.json");
-
-            // Save the JSON file
-            //await System.IO.File.WriteAllTextAsync(jsonFilePath, jsonResult);
-
-            // Download the JSON file
-            //return File(System.IO.File.ReadAllBytes(jsonFilePath), "application/json", $"{Path.GetFileNameWithoutExtension(uploadedFile.FileName)}.json");
+          
         }
 
         return View("Index", model);
