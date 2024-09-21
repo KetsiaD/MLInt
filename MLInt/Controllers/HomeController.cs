@@ -37,39 +37,59 @@ namespace MLInt.Controllers
                 var csvFileName = $"{Path.GetFileNameWithoutExtension(uploadedFile.FileName)}_vader_results.csv";
                 var csvFilePath = Path.Combine(uploadsPath, csvFileName);
 
-                Runscript("VADER",filePath,csvFilePath);
+                var chartFileName = $"{Path.GetFileNameWithoutExtension(uploadedFile.FileName)}_pie_chart.png";
+                var chartFilePath = Path.Combine(uploadsPath, chartFileName);
+                
+
+                Runscript("VADER",filePath,csvFilePath,chartFilePath);
+                // using (var fileStream = new FileStream(chartFilePath, FileMode.Create))
+                // {
+                //     await uploadedFile.CopyToAsync(fileStream);
+                // }
+
                
                 Console.WriteLine(csvFilePath);
-                if (await WaitForFileCreationAsync(csvFilePath, 60))
+                Console.WriteLine(chartFilePath);
+                if (await WaitForFileCreationAsync(csvFilePath, 60) && await WaitForFileCreationAsync(chartFilePath, 60))
                 {
-                    return File(System.IO.File.ReadAllBytes(csvFilePath), "text/csv", csvFileName);
+            // Redirect to the DisplayResults action with the chart and CSV paths
+                    return RedirectToAction("PiechartDisplay", new { 
+                        chartPath = $"/uploads/{chartFileName}", 
+                        csvFilePath = $"/uploads/{csvFileName}" 
+                    });
                 }
                 else
                 {
-                    _logger.LogError($"CSV file not found at: {csvFilePath}");
+                    _logger.LogError($"CSV or Chart file not found. CSV: {csvFilePath}, Chart: {chartFilePath}");
                     return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
                 }
-                
             }
 
             return View("Index", model);
         }
-        static void Runscript(string scripname, string inputFilePath, string outputFilePath){
-            Runtime.PythonDLL =  "/opt/homebrew/Cellar/python@3.12/3.12.6/Frameworks/Python.framework/Versions/3.12/lib/libpython3.12.dylib";
+        static void Runscript(string scripname, string inputFilePath, string outputFilePath,string pieChartFilePath){
+            Runtime.PythonDLL = "/opt/homebrew/Cellar/python@3.12/3.12.6/Frameworks/Python.framework/Versions/3.12/lib/libpython3.12.dylib";
             PythonEngine.Initialize();
+
             using (Py.GIL()){
                 dynamic sys = Py.Import("sys");
                 sys.path.append("/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Controllers");
-
                 var pythonscript = Py.Import(scripname);
                 dynamic pyInputFilePath = new PyString(inputFilePath);
                 dynamic pyOutputFilePath = new PyString(outputFilePath);
-                pythonscript.InvokeMethod("analyze_and_generate_csv",new PyObject[]{pyInputFilePath,pyOutputFilePath});
+                dynamic pyPiechartFilePath = new PyString(pieChartFilePath);
+                pythonscript.InvokeMethod("analyze_and_generate_csv",new PyObject[]{pyInputFilePath,pyOutputFilePath,pyPiechartFilePath});
             }
         }
 
         public IActionResult Index()
         {
+            return View();
+        }
+        public IActionResult PiechartDisplay(string chartPath, string csvFilePath)
+        {
+            ViewBag.ChartPath = chartPath;
+            ViewBag.CsvFilePath = csvFilePath;
             return View();
         }
         private async Task<bool> WaitForFileCreationAsync(string filePath, int timeoutInSeconds)

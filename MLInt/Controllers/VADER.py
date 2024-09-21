@@ -1,8 +1,9 @@
 import sys
 import csv
+import matplotlib.pyplot as plt
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
-def analyze_and_generate_csv(input_file_path: str, output_csv_path: str):
+def analyze_and_generate_csv(input_file_path: str, output_csv_path: str,output_chart_path: str):
     """
     Perform sentiment analysis on the content of the given input file and write the results to a CSV file.
     """
@@ -43,9 +44,18 @@ def analyze_and_generate_csv(input_file_path: str, output_csv_path: str):
         csv_writer.writerow(['neu', average_neu])
         csv_writer.writerow(['pos', average_pos])
         csv_writer.writerow(['compound', average_compound])
+    sentiment_values = [average_neg, average_neu, average_pos]
+    sentiment_labels = ['Negative', 'Neutral', 'Positive']
+    plt.figure(figsize=(6, 6))
+    plt.pie(sentiment_values, labels=sentiment_labels, autopct='%1.1f%%', startangle=140, colors=['red', 'yellow', 'green'])
+    plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+    # Save the pie chart to a file
+    plt.savefig(output_chart_path)
+    plt.close()
 
     print(f"CSV file created at: {output_csv_path}")
 
-#analyze_and_generate_csv('/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/wwwroot/uploads/Phenomenal.txt', '/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/wwwroot/uploads/Phenomenal.csv')
+#analyze_and_generate_csv('/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/wwwroot/uploads/Phenomenal.txt', '/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/wwwroot/uploads/Phenomenal.csv','/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/wwwroot/uploads/Phenomenal.png')
 
 
