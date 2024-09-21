@@ -39,29 +39,25 @@ namespace MLInt.Controllers
 
                 var chartFileName = $"{Path.GetFileNameWithoutExtension(uploadedFile.FileName)}_pie_chart.png";
                 var chartFilePath = Path.Combine(uploadsPath, chartFileName);
-                
 
                 Runscript("VADER",filePath,csvFilePath,chartFilePath);
-                // using (var fileStream = new FileStream(chartFilePath, FileMode.Create))
-                // {
-                //     await uploadedFile.CopyToAsync(fileStream);
-                // }
-
+                if (!System.IO.File.Exists(chartFilePath))
+                {
+                    _logger.LogError($"Pie chart not created at: {chartFilePath}");
+                }
+                
                
                 Console.WriteLine(csvFilePath);
                 Console.WriteLine(chartFilePath);
                 if (await WaitForFileCreationAsync(csvFilePath, 60) && await WaitForFileCreationAsync(chartFilePath, 60))
                 {
-            // Redirect to the DisplayResults action with the chart and CSV paths
-                    return RedirectToAction("PiechartDisplay", new { 
-                        chartPath = $"/uploads/{chartFileName}", 
-                        csvFilePath = $"/uploads/{csvFileName}" 
-                    });
-                }
-                else
+                    var viewModel = new PieChartViewModel
                 {
-                    _logger.LogError($"CSV or Chart file not found. CSV: {csvFilePath}, Chart: {chartFilePath}");
-                    return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+                    ChartPath = $"/uploads/{chartFileName}",
+                    CsvFilePath = $"/uploads/{csvFileName}"
+                };
+
+                return RedirectToAction("Visual", viewModel); 
                 }
             }
 
@@ -86,11 +82,10 @@ namespace MLInt.Controllers
         {
             return View();
         }
-        public IActionResult PiechartDisplay(string chartPath, string csvFilePath)
+
+        public IActionResult Visual(PieChartViewModel model)
         {
-            ViewBag.ChartPath = chartPath;
-            ViewBag.CsvFilePath = csvFilePath;
-            return View();
+            return View(model); // Pass the model to the view
         }
         private async Task<bool> WaitForFileCreationAsync(string filePath, int timeoutInSeconds)
         {

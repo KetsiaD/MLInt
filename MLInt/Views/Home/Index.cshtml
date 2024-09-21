@@ -9,32 +9,3 @@
     <button type="submit" class="btn btn-primary">Upload</button>
 </form>
 
-
-
-@* <!-- Button to generate the JSON file -->
-<button id="generateButton" type="button" onclick="generateFile()">Generate JSON File</button>
-
-<!-- Button to download the JSON file (initially hidden) -->
-<a id="downloadLink" href="#" style="display:none;" download>Download JSON File</a>
-
-<script type="text/javascript">
-    function generateFile() {
-        fetch('@Url.Action("GenerateJsonFile", "YourControllerName")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Show the download button after file is generated
-                let downloadLink = document.getElementById("downloadLink");
-                downloadLink.href = '@Url.Action("DownloadJsonFile", "YourControllerName")' + '?fileName=' + data.fileName;
-                downloadLink.style.display = "inline"; // Make the download link visible
-            }
-        })
-        .catch(error => console.error('Error generating file:', error));
-    }
-</script>
- *@

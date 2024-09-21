@@ -12,6 +12,7 @@ var app = builder.Build();
 // Serve static files
 app.UseStaticFiles();
 
+
 // Map the default controller route
 app.MapDefaultControllerRoute();
 app.Lifetime.ApplicationStopping.Register(() =>

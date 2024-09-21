@@ -1,0 +1,14 @@
+@model MLInt.Models.PieChartViewModel
+
+<h2>Sentiment Analysis Results</h2>
+
+@if (!string.IsNullOrEmpty(Model.ChartPath))
+{
+    <img src="@Model.ChartPath" alt="Pie Chart" />
+}
+else
+{
+    <p>No chart available.</p>
+}
+
+<a href="@Model.CsvFilePath" download>Download CSV</a>
