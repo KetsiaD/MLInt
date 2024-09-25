@@ -9,7 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Python.Runtime" Version="2.7.9" />
-    <PackageReference Include="pythonnet" Version="3.0.3" />
+    <PackageReference Include="pythonnet" Version="3.0.4" />
+    <PackageReference Include="VaderSharp2" Version="3.3.2.1" />
   </ItemGroup>
 
 </Project>

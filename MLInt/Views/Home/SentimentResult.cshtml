@@ -1,0 +1,77 @@
+@model MLInt.Models.SentimentResultViewModel
+
+<h2>Sentiment Analysis Result</h2>
+
+<!-- Display Sentiment Scores -->
+<ul>
+    <li>Positive Score: @Model.PositiveScore</li>
+    <li>Negative Score: @Model.NegativeScore</li>
+    <li>Neutral Score: @Model.NeutralScore</li>
+    <li>Compound Score: @Model.CompoundScore</li>
+</ul>
+
+<!-- Download CSV Button -->
+<!-- Download CSV Button -->
+<a href="@Url.Action("DownloadCsv", "Home")" class="btn btn-primary">Download Results as CSV</a>
+
+
+<!-- Pie Chart Container with Smaller Size -->
+<canvas id="sentimentPieChart" width="300" height="300"></canvas>
+
+<!-- Link to Upload Another File -->
+<a href="@Url.Action("Index")">Upload another file</a>
+
+<!-- Include Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Get sentiment scores from the model and prepare the data for the pie chart
+    const positiveScore = @Model.PositiveScore;
+    const negativeScore = @Model.NegativeScore;
+    const neutralScore = @Model.NeutralScore;
+
+    // Data and configuration for the pie chart
+    const ctx = document.getElementById('sentimentPieChart').getContext('2d');
+    const sentimentPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Positive', 'Negative', 'Neutral'],
+            datasets: [{
+                label: 'Sentiment Scores',
+                data: [positiveScore, negativeScore, neutralScore],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.2)', // Green for Positive
+                    'rgba(255, 99, 132, 0.2)', // Red for Negative
+                    'rgba(255, 206, 86, 0.2)'  // Yellow for Neutral
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // Optional: Allows you to control the size further
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    enabled: true,
+                }
+            }
+        }
+    });
+</script>
+
+<style>
+    /* Optional: Set a specific size for the canvas to ensure it appears smaller */
+    #sentimentPieChart {
+        max-width: 300px; /* Maximum width */
+        max-height: 300px; /* Maximum height */
+    }
+</style>

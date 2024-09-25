@@ -45,7 +45,7 @@
       "Python.Runtime/2.7.9": {
         "type": "package"
       },
-      "pythonnet/3.0.3": {
+      "pythonnet/3.0.4": {
         "type": "package",
         "dependencies": {
           "Microsoft.CSharp": "4.7.0",
@@ -173,6 +173,19 @@
         },
         "compile": {
           "ref/netstandard1.3/System.Threading.Tasks.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "VaderSharp2/3.3.2.1": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/VaderSharp2.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/VaderSharp2.dll": {
             "related": ".xml"
           }
         }
@@ -321,10 +334,10 @@
         "python.runtime.nuspec"
       ]
     },
-    "pythonnet/3.0.3": {
-      "sha512": "Go6pLzJ0msUVISUDf4n49GFja/7PbrjfQ9Nxpz+KV0r39YB8x5lPz7sItX38a0KGLoQIsSMxkUNDRjGRvplLHw==",
+    "pythonnet/3.0.4": {
+      "sha512": "ASFe/9vMNwuUvNo0duPJFxM24fmnMy5NGsLYpvvFbRUDXL2LDVoXLevEOsSFc41UUpp3dUbpUCUQDGjJTIxZcA==",
       "type": "package",
-      "path": "pythonnet/3.0.3",
+      "path": "pythonnet/3.0.4",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -333,7 +346,7 @@
         "lib/netstandard2.0/Python.Runtime.dll",
         "lib/netstandard2.0/Python.Runtime.xml",
         "python-clear.png",
-        "pythonnet.3.0.3.nupkg.sha512",
+        "pythonnet.3.0.4.nupkg.sha512",
         "pythonnet.nuspec"
       ]
     },
@@ -864,13 +877,44 @@
         "system.threading.tasks.4.3.0.nupkg.sha512",
         "system.threading.tasks.nuspec"
       ]
+    },
+    "VaderSharp2/3.3.2.1": {
+      "sha512": "LBQPC5tZZNCG3GS22Ldlc0B6l4jw7/GZRx7dbi1c3uYsoUCNZ5jJFfClBkACISqCDDCJftSRe4gSwLF7F/uzyQ==",
+      "type": "package",
+      "path": "vadersharp2/3.3.2.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net452/VaderSharp2.dll",
+        "lib/net452/VaderSharp2.xml",
+        "lib/net46/VaderSharp2.dll",
+        "lib/net46/VaderSharp2.xml",
+        "lib/net461/VaderSharp2.dll",
+        "lib/net461/VaderSharp2.xml",
+        "lib/net462/VaderSharp2.dll",
+        "lib/net462/VaderSharp2.xml",
+        "lib/net47/VaderSharp2.dll",
+        "lib/net47/VaderSharp2.xml",
+        "lib/net5.0/VaderSharp2.dll",
+        "lib/net5.0/VaderSharp2.xml",
+        "lib/net6.0/VaderSharp2.dll",
+        "lib/net6.0/VaderSharp2.xml",
+        "lib/netcoreapp2.1/VaderSharp2.dll",
+        "lib/netcoreapp2.1/VaderSharp2.xml",
+        "lib/netcoreapp3.1/VaderSharp2.dll",
+        "lib/netcoreapp3.1/VaderSharp2.xml",
+        "vadersharp2.3.3.2.1.nupkg.sha512",
+        "vadersharp2.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     "net6.0": [
       "Newtonsoft.Json >= 13.0.3",
       "Python.Runtime >= 2.7.9",
-      "pythonnet >= 3.0.3"
+      "VaderSharp2 >= 3.3.2.1",
+      "pythonnet >= 3.0.4"
     ]
   },
   "packageFolders": {
@@ -918,9 +962,13 @@
             "target": "Package",
             "version": "[2.7.9, )"
           },
+          "VaderSharp2": {
+            "target": "Package",
+            "version": "[3.3.2.1, )"
+          },
           "pythonnet": {
             "target": "Package",
-            "version": "[3.0.3, )"
+            "version": "[3.0.4, )"
           }
         },
         "imports": [

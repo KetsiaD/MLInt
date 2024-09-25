@@ -46,9 +46,13 @@
               "target": "Package",
               "version": "[2.7.9, )"
             },
+            "VaderSharp2": {
+              "target": "Package",
+              "version": "[3.3.2.1, )"
+            },
             "pythonnet": {
               "target": "Package",
-              "version": "[3.0.3, )"
+              "version": "[3.0.4, )"
             }
           },
           "imports": [
