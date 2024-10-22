@@ -4,7 +4,8 @@ using MLInt.Analyzers;
 var builder = WebApplication.CreateBuilder(args);
   // Initialize Python runtime
 
-builder.Services.AddScoped<VaderSentimentAnalysis>(); // Add this line
+builder.Services.AddScoped<VaderSentimentAnalysis>();
+builder.Services.AddScoped<TfidfSentimentPrediction>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

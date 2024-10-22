@@ -1,13 +1,12 @@
-@model MLInt.Models.SentimentResultViewModel
+@model MLInt.Models.CombinedResultViewModel
 
 <h2>Sentiment Analysis Result</h2>
-
-<!-- Display Sentiment Scores -->
-<ul>
-    <li>Positive Score: @Model.PositiveScore</li>
-    <li>Negative Score: @Model.NegativeScore</li>
-    <li>Neutral Score: @Model.NeutralScore</li>
-    <li>Compound Score: @Model.CompoundScore</li>
+@if (Model.SentimentResult != null){
+    <ul>
+    <li>Positive Score: @Model.SentimentResult.PositiveScore</li>
+    <li>Negative Score: @Model.SentimentResult.NegativeScore</li>
+    <li>Neutral Score: @Model.SentimentResult.NeutralScore</li>
+    <li>Compound Score: @Model.SentimentResult.CompoundScore</li>
 </ul>
 
 <!-- Download CSV Button -->
@@ -26,9 +25,9 @@
 
 <script>
     // Get sentiment scores from the model and prepare the data for the pie chart
-    const positiveScore = @Model.PositiveScore;
-    const negativeScore = @Model.NegativeScore;
-    const neutralScore = @Model.NeutralScore;
+    const positiveScore = @Model.SentimentResult.PositiveScore;
+    const negativeScore = @Model.SentimentResult.NegativeScore;
+    const neutralScore = @Model.SentimentResult.NeutralScore;
 
     // Data and configuration for the pie chart
     const ctx = document.getElementById('sentimentPieChart').getContext('2d');
@@ -75,3 +74,15 @@
         max-height: 300px; /* Maximum height */
     }
 </style>
+
+
+}else if (Model.UserOutput != null)
+{
+    <h2>Prediction Result</h2>
+    <p>Sentiment: @(Model.UserOutput.Sentiment ? "Positive" : "Negative")</p>
+}
+else
+{
+    <p>No result to display.</p>
+}
+<!-- Display Sentiment Scores -->
