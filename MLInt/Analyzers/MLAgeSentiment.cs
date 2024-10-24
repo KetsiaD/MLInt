@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using MLInt.Models;
@@ -5,108 +7,147 @@ using static Microsoft.ML.DataOperationsCatalog;
 
 public class TfidfSentimentPrediction
 {
-    private readonly MLContext _mlContext;
     private ITransformer? _trainedModel;
 
-    public bool IsTrained => _trainedModel != null;
+    
 
-    public TfidfSentimentPrediction()
-    {
-        _mlContext = new MLContext();
-    }
-
-
-public ITransformer TrainModel(string trainingDataPath)
+public async Task TrainModel()
 {
     try
     {
-        // Step 1: Load the data
-        var data = _mlContext.Data.LoadFromTextFile<InputModel>(trainingDataPath, hasHeader: true, separatorChar: ',');
+        var mlContext = new MLContext();
+        var dataView = mlContext.Data.LoadFromTextFile<InputModel>(
+            "/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Training Dataset/train.csv", separatorChar: ',', hasHeader: true);
+        var smalldata = mlContext.Data.TakeRows(dataView, 3000);
+        var trainTestSplit = mlContext.Data.TrainTestSplit(smalldata, testFraction: 0.2);
+        var trainSet = trainTestSplit.TrainSet;
+        var testSet = trainTestSplit.TestSet;
+        Console.WriteLine("Dataset Processed");
+        // Data processing pipeline
+        var dataProcessPipeline = mlContext.Transforms.Conversion.MapValueToKey("Label")
+            .Append(mlContext.Transforms.Text.FeaturizeText(
+                outputColumnName: "Features", 
+                inputColumnName: nameof(InputModel.SelectedText)));
+        Console.WriteLine("Data Process Pipeline done");     
+        var trainer = mlContext.MulticlassClassification
+                    .Trainers
+                    .SdcaMaximumEntropy(
+                    labelColumnName: "Label", featureColumnName: "Features");
+        Console.WriteLine("Trainer done")    ; 
+            
+        
+        var trainingPipeline = dataProcessPipeline
+                                .Append(trainer)
+                                .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
+          Console.WriteLine("training Pipeline done") ;    
+        var trainedModel = trainingPipeline.Fit(trainSet);
+        var predictions = trainedModel.Transform(testSet);
+        Console.WriteLine("Predictions for training done");     
 
-        // Step 2: Convert IDataView to IEnumerable
-        var allData = _mlContext.Data.CreateEnumerable<InputModel>(data, reuseRowObject: false).ToList();
+        var metrics = mlContext.MulticlassClassification.Evaluate(predictions, "Label");
+        Console.WriteLine($"Macro accuracy: {metrics.MacroAccuracy:P2}");
+        Console.WriteLine($"Micro accuracy: {metrics.MicroAccuracy:P2}");
+        Console.WriteLine($"Log loss: {metrics.LogLoss:P2}");
+        var modelPath = "/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Training Dataset/model.zip";
+        mlContext.Model.Save(trainedModel, trainSet.Schema, modelPath);
 
-        // Step 3: Filter out neutral and null sentiments
-        var filteredData = allData
-            .Where(input => !string.IsNullOrEmpty(input.Sentiment) && 
-                            (input.Sentiment.Equals("positive", StringComparison.OrdinalIgnoreCase) || 
-                             input.Sentiment.Equals("negative", StringComparison.OrdinalIgnoreCase)))
-            .ToList();
+        await Task.Delay(5000); 
 
-        // Step 4: Convert back to IDataView
-        var filteredDataView = _mlContext.Data.LoadFromEnumerable(filteredData);
 
-        // Step 5: Define the data processing pipeline with custom mapping
-        var dataProcessPipeline = _mlContext.Transforms.CustomMapping<InputModel, LabelModel>(
-            (input, output) =>
-            {
-                output.Features = input.SelectedText; // This will be featurized later
-                output.Label = input.Sentiment.Equals("positive", StringComparison.OrdinalIgnoreCase);
-            }, contractName: null)
-            .Append(_mlContext.Transforms.Text.FeaturizeText(outputColumnName: "Features", inputColumnName: nameof(InputModel.SelectedText)));
+    }catch (Exception ex){
+        Console.WriteLine(ex.ToString());
 
-        // Step 6: Set the training algorithm
-        var trainer = _mlContext.BinaryClassification.Trainers.SdcaLogisticRegression(
-            labelColumnName: "Label", // This refers to the new label created in the mapping
-            featureColumnName: "Features");
+    }
+}
 
-        // Create the full training pipeline
-        var trainingPipeline = dataProcessPipeline.Append(trainer);
+public async Task<string> predictedSentiment(string input)
+{
+    try
+    {
+        var mlContext = new MLContext();
 
-        // Step 7: Split the data into training and test sets
-        TrainTestData trainTestSplit = _mlContext.Data.TrainTestSplit(filteredDataView, testFraction: 0.2);
-        IDataView trainingData = trainTestSplit.TrainSet;
-        IDataView testData = trainTestSplit.TestSet;
+        // Check if the model file exists
+        var modelPath = "/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Training Dataset/model.zip";
+        if (!System.IO.File.Exists(modelPath))
+        {
+            throw new FileNotFoundException($"Model file not found at {modelPath}");
+        }
 
-        // Step 8: Train the model
-        _trainedModel = trainingPipeline.Fit(trainingData);
+        ITransformer loadedModel;
+        try
+        {
+            loadedModel = mlContext.Model.Load(modelPath, out var modelInputSchema);
+            Console.WriteLine("Model loaded successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading model:");
+            Console.WriteLine(ex.Message);
+            throw;
+        }
 
-        // Optional: Evaluate the model
-        var predictions = _trainedModel.Transform(testData);
-        var metrics = _mlContext.BinaryClassification.Evaluate(data: predictions, labelColumnName: "Label", scoreColumnName: "Score");
+        // Creating prediction engine
+        var predEngine = mlContext.Model.CreatePredictionEngine<InputModel, SentimentMapping>(loadedModel);
 
-        // Output metrics
-        Console.WriteLine($"Accuracy: {metrics.Accuracy:P2}");
-        Console.WriteLine($"AUC: {metrics.AreaUnderRocCurve:P2}");
-        Console.WriteLine($"F1 Score: {metrics.F1Score:P2}");
+        // Cleaning the input text
+        var cleanedText = Regex.Replace(input, @"[^\w\s]", "").ToLower();
+        cleanedText = Regex.Replace(cleanedText, @"\s+", " ").Trim();
 
-        return _trainedModel;
+        Console.WriteLine($"Text to predict: '{cleanedText}'");
+
+        // Preparing the input for prediction
+        var textanalysis = new InputModel
+        {
+            SelectedText = cleanedText
+        };
+
+        if (string.IsNullOrEmpty(textanalysis.SelectedText))
+        {
+            throw new ArgumentException("Input text cannot be null or empty.");
+        }
+
+        Console.WriteLine($"InputModel SelectedText: '{textanalysis.SelectedText}'");
+
+        // Making a prediction
+        SentimentMapping predictionResult;
+        try
+        {
+            predictionResult = predEngine.Predict(textanalysis);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error during prediction:");
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+        
+
+        // Check prediction result
+        if (predictionResult == null)
+        {
+            throw new InvalidOperationException("Prediction result is null.");
+        }
+        var results = new SentimentOutputModel{
+            Sentiment = predictionResult.Prediction,
+        };
+
+        Console.WriteLine($"Prediction Result: {results.Sentiment}"); 
+
+        return results.Sentiment;
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Error during model training: {ex.Message}");
-        return null; // Return null if an error occurs
+        Console.WriteLine($"In predicting, this is the error: {ex.Message}");
+        Console.WriteLine(ex.StackTrace); 
+        throw; 
     }
 }
 
 
 
-    public bool Predict(string inputText)
-{
-    // Check if the model is trained
-    if (_trainedModel == null)
-    {
-        throw new InvalidOperationException("The model must be trained before making predictions.");
-    }
-
-    // Prepare the input for prediction
-    var input = new InputModel { SelectedText = inputText };
-
-    // Create the prediction engine
-    var predictor = _mlContext.Model.CreatePredictionEngine<InputModel, SentimentMapping>(_trainedModel);
-
-    // Make the prediction
-    var prediction = predictor.Predict(input);
-
-    // Create the SentimentOutputModel based on the prediction
-    var result = new SentimentOutputModel
-    {
-        Sentiment = prediction.SentimentBool,  // Assuming this is a boolean (true for Positive)
-        // If you have additional info, you can add more fields here
-    };
-
-    return result.Sentiment;  // Return the SentimentOutputModel
 }
 
 
-}
+
+
+

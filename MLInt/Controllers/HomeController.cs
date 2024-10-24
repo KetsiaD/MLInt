@@ -24,6 +24,7 @@ namespace MLInt.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(UploadModel model)
         {
+            CombinedResultViewModel combinedResult = new CombinedResultViewModel();
             var uploadedFile = Request.Form.Files["uploadedFile"];
             var selectedAlgorithm = Request.Form["algorithm"];
 
@@ -40,7 +41,7 @@ namespace MLInt.Controllers
                     await uploadedFile.CopyToAsync(fileStream);
                 }
 
-                CombinedResultViewModel combinedResult = new CombinedResultViewModel();
+                
                 
                
             try
@@ -58,20 +59,37 @@ namespace MLInt.Controllers
                     string textToPredict = await System.IO.File.ReadAllTextAsync(filePath);
                     Console.WriteLine($"Text to predict: {textToPredict}");
                     
-
-                    if (!_tfidfSentimentPrediction.IsTrained) // Assuming you have a property to check if trained
+                    var modelPath = "/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Training Dataset/model.zip";
+                    
+                    if (!System.IO.File.Exists(modelPath)) // Assuming you have a property to check if trained
                     {
-                        _tfidfSentimentPrediction.TrainModel("/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Training Dataset/train.csv");
+                        await _tfidfSentimentPrediction.TrainModel();
                         Console.WriteLine("traineddata");
                     }
-                    Console.WriteLine("we are here");
-                    //combinedResult.UserOutput = _tfidfSentimentPrediction.Predict(textToPredict);
-                    combinedResult.UserOutput = new SentimentOutputModel{
-                        Sentiment = _tfidfSentimentPrediction.Predict(textToPredict),
-                        
+                    try
+                        {
+                            Console.WriteLine("we are here");
 
-                        };
-                    Console.WriteLine("Prediction happened");
+                            if (combinedResult == null)
+                            {
+                                Console.WriteLine("combinedResult is null.");
+                                return null; // Prevent further execution
+                            }
+                            combinedResult = new CombinedResultViewModel{
+                                UserOutput = new SentimentOutputModel{
+                                    Sentiment = await _tfidfSentimentPrediction.predictedSentiment(textToPredict)
+                                }
+                            };
+
+                            Console.WriteLine("Prediction happened");
+                            Console.WriteLine(combinedResult.UserOutput.Sentiment);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"An error occurred: {ex.Message}");
+                           
+                        }
+                    
                     Console.WriteLine(combinedResult.UserOutput.Sentiment);
                 }
                 else

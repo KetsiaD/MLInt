@@ -11,7 +11,7 @@ public class InputModel
     [LoadColumn(2)] // selected_text column
     public string? SelectedText { get; set; }
 
-    [LoadColumn(3)] // sentiment column
+    [LoadColumn(3), ColumnName("Label")] // sentiment column
     public string? Sentiment { get; set; }
 
     [LoadColumn(4)] // Time of Tweet column
