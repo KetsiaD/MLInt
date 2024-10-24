@@ -79,7 +79,9 @@
 }else if (Model.UserOutput != null)
 {
     <h2>Prediction Result</h2>
-    <p>Sentiment: @(Model.UserOutput.Sentiment ? "Positive" : "Negative")</p>
+    <p>Sentiment: @(Model.UserOutput?.Sentiment ?? "No sentiment available")</p>
+    <a href="@Url.Action("DownloadCsv", "Home")" class="btn btn-primary">Download Results as CSV</a>
+
 }
 else
 {

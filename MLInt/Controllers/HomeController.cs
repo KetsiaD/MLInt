@@ -10,15 +10,15 @@ namespace MLInt.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly VaderSentimentAnalysis _vadersentimentanalysis;
-        private readonly TfidfSentimentPrediction _tfidfSentimentPrediction;
+        private readonly MlSentimentAnalyzer _mlsentimentanalyzer;
 
         public HomeController(ILogger<HomeController> logger, 
             VaderSentimentAnalysis sentimentAnalysisService, 
-            TfidfSentimentPrediction tfidfSentimentPrediction)
+            MlSentimentAnalyzer mlsentimentanalyzer)
         {
             _logger = logger;
             _vadersentimentanalysis = sentimentAnalysisService;
-            _tfidfSentimentPrediction = tfidfSentimentPrediction;
+            _mlsentimentanalyzer = mlsentimentanalyzer;
         }
 
         [HttpPost]
@@ -63,7 +63,7 @@ namespace MLInt.Controllers
                     
                     if (!System.IO.File.Exists(modelPath)) // Assuming you have a property to check if trained
                     {
-                        await _tfidfSentimentPrediction.TrainModel();
+                        await _mlsentimentanalyzer.TrainModel();
                         Console.WriteLine("traineddata");
                     }
                     try
@@ -77,7 +77,7 @@ namespace MLInt.Controllers
                             }
                             combinedResult = new CombinedResultViewModel{
                                 UserOutput = new SentimentOutputModel{
-                                    Sentiment = await _tfidfSentimentPrediction.predictedSentiment(textToPredict)
+                                    Sentiment = await _mlsentimentanalyzer.predictedSentiment(textToPredict)
                                 }
                             };
 

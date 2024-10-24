@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
   // Initialize Python runtime
 
 builder.Services.AddScoped<VaderSentimentAnalysis>();
-builder.Services.AddScoped<TfidfSentimentPrediction>();
+builder.Services.AddScoped<MlSentimentAnalyzer>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

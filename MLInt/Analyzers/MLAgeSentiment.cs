@@ -5,9 +5,8 @@ using Microsoft.ML.Data;
 using MLInt.Models;
 using static Microsoft.ML.DataOperationsCatalog;
 
-public class TfidfSentimentPrediction
+public class MlSentimentAnalyzer
 {
-    private ITransformer? _trainedModel;
 
     
 
@@ -15,10 +14,12 @@ public async Task TrainModel()
 {
     try
     {
+        //I need to clean my data, figured there are some nulls.
+        // I need to return not just the overall sentiment but the postives, negatives, and neutral values.
         var mlContext = new MLContext();
         var dataView = mlContext.Data.LoadFromTextFile<InputModel>(
             "/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Training Dataset/train.csv", separatorChar: ',', hasHeader: true);
-        var smalldata = mlContext.Data.TakeRows(dataView, 3000);
+        var smalldata = mlContext.Data.TakeRows(dataView, 7000);
         var trainTestSplit = mlContext.Data.TrainTestSplit(smalldata, testFraction: 0.2);
         var trainSet = trainTestSplit.TrainSet;
         var testSet = trainTestSplit.TestSet;
