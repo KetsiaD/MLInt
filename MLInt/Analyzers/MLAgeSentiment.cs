@@ -19,8 +19,27 @@ public async Task TrainModel()
         var mlContext = new MLContext();
         var dataView = mlContext.Data.LoadFromTextFile<InputModel>(
             "/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Training Dataset/train.csv", separatorChar: ',', hasHeader: true);
-        var smalldata = mlContext.Data.TakeRows(dataView, 7000);
-        var trainTestSplit = mlContext.Data.TrainTestSplit(smalldata, testFraction: 0.2);
+     var allData = mlContext.Data.CreateEnumerable<InputModel>(dataView, reuseRowObject: false)
+    .Where(data => !string.IsNullOrEmpty(data.SelectedText) && !string.IsNullOrEmpty(data.Sentiment)) 
+    .ToList(); 
+
+var positiveSamples = allData.Where(data => data.Sentiment == "positive").Take(4000);
+var negativeSamples = allData.Where(data => data.Sentiment == "negative").Take(4000);
+var neutralSamples = allData.Where(data => data.Sentiment == "neutral").Take(2000);
+
+
+var sampledData = positiveSamples
+    .Concat(negativeSamples)
+    .Concat(neutralSamples)
+    .Select(data =>
+    {
+        data.SelectedText = CleanText(data.SelectedText); 
+        return data;
+    }).ToList(); 
+
+Console.WriteLine($"{sampledData}");
+var cleanedDataView = mlContext.Data.LoadFromEnumerable(sampledData);
+        var trainTestSplit = mlContext.Data.TrainTestSplit(cleanedDataView, testFraction: 0.2);
         var trainSet = trainTestSplit.TrainSet;
         var testSet = trainTestSplit.TestSet;
         Console.WriteLine("Dataset Processed");
@@ -39,7 +58,8 @@ public async Task TrainModel()
         
         var trainingPipeline = dataProcessPipeline
                                 .Append(trainer)
-                                .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
+                                .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"))
+                                .Append(mlContext.Transforms.CopyColumns(outputColumnName:"Score", inputColumnName:"Score"));
           Console.WriteLine("training Pipeline done") ;    
         var trainedModel = trainingPipeline.Fit(trainSet);
         var predictions = trainedModel.Transform(testSet);
@@ -52,7 +72,7 @@ public async Task TrainModel()
         var modelPath = "/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Training Dataset/model.zip";
         mlContext.Model.Save(trainedModel, trainSet.Schema, modelPath);
 
-        await Task.Delay(5000); 
+        
 
 
     }catch (Exception ex){
@@ -61,7 +81,7 @@ public async Task TrainModel()
     }
 }
 
-public async Task<string> predictedSentiment(string input)
+public async Task<SentimentOutputModel> predictedSentiment(string input)
 {
     try
     {
@@ -91,8 +111,7 @@ public async Task<string> predictedSentiment(string input)
         var predEngine = mlContext.Model.CreatePredictionEngine<InputModel, SentimentMapping>(loadedModel);
 
         // Cleaning the input text
-        var cleanedText = Regex.Replace(input, @"[^\w\s]", "").ToLower();
-        cleanedText = Regex.Replace(cleanedText, @"\s+", " ").Trim();
+        var cleanedText = CleanText(input);
 
         Console.WriteLine($"Text to predict: '{cleanedText}'");
 
@@ -128,25 +147,59 @@ public async Task<string> predictedSentiment(string input)
         {
             throw new InvalidOperationException("Prediction result is null.");
         }
-        var results = new SentimentOutputModel{
-            Sentiment = predictionResult.Prediction,
-        };
+        var positiveProbability = predictionResult.Score[0];
+        var negativeProbability = predictionResult.Score[1];
+        var neutralProbability = predictionResult.Score[2];
+        var weightedSum = positiveProbability - negativeProbability;
+
+        var sumOfProbabilities = positiveProbability + negativeProbability + neutralProbability;
+        var compoundScore = sumOfProbabilities > 1e-6? weightedSum / sumOfProbabilities : 0;
+
+
+        var results = new SentimentOutputModel
+{
+    Sentiment = predictionResult.Prediction,
+    PositiveProbability = positiveProbability,
+    NegativeProbability = negativeProbability,
+    NeutralProbability = neutralProbability,
+    CompoundScore = compoundScore
+};
+
+        
 
         Console.WriteLine($"Prediction Result: {results.Sentiment}"); 
 
-        return results.Sentiment;
+        return results;
     }
     catch (Exception ex)
     {
         Console.WriteLine($"In predicting, this is the error: {ex.Message}");
         Console.WriteLine(ex.StackTrace); 
         throw; 
-    }
+    }}
+    public static string CleanText(string text)
+{
+    // Lowercase
+    text = text.ToLower();
+    
+    // Remove punctuation
+    text = Regex.Replace(text, @"[^\w\s]", "");
+    
+    // Remove stop words
+    var stopWords = new HashSet<string> { "the", "is", "at", "which", "on" };
+    text = string.Join(" ", text.Split(' ').Where(word => !stopWords.Contains(word)));
+    
+    // Remove extra whitespaces
+    text = Regex.Replace(text, @"\s+", " ").Trim();
+    
+    return text;
+}
+
 }
 
 
 
-}
+
 
 
 

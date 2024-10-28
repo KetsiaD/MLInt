@@ -61,7 +61,7 @@ namespace MLInt.Controllers
                     
                     var modelPath = "/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/Training Dataset/model.zip";
                     
-                    if (!System.IO.File.Exists(modelPath)) // Assuming you have a property to check if trained
+                    if (!System.IO.File.Exists(modelPath)) 
                     {
                         await _mlsentimentanalyzer.TrainModel();
                         Console.WriteLine("traineddata");
@@ -76,9 +76,7 @@ namespace MLInt.Controllers
                                 return null; // Prevent further execution
                             }
                             combinedResult = new CombinedResultViewModel{
-                                UserOutput = new SentimentOutputModel{
-                                    Sentiment = await _mlsentimentanalyzer.predictedSentiment(textToPredict)
-                                }
+                                UserOutput = await _mlsentimentanalyzer.predictedSentiment(textToPredict)
                             };
 
                             Console.WriteLine("Prediction happened");
@@ -140,8 +138,8 @@ namespace MLInt.Controllers
                 }
                 else if (combinedResult.UserOutput != null)
                 {
-                    csvContent.AppendLine("Sentiment");
-                    csvContent.AppendLine($"{combinedResult.UserOutput.Sentiment}");
+                    csvContent.AppendLine("PositiveScore,NegativeScore,NeutralScore,CompoundScore");
+                    csvContent.AppendLine($"{combinedResult.UserOutput.PositiveProbability},{combinedResult.UserOutput.NegativeProbability},{combinedResult.UserOutput.NeutralProbability},{combinedResult.UserOutput.CompoundScore}");
                 }
 
                 // Return CSV as a file for download without permanent storage
