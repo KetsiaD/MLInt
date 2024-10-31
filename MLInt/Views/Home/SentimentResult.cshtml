@@ -1,87 +1,94 @@
 @model MLInt.Models.CombinedResultViewModel
 
-<h2>Sentiment Analysis Result</h2>
-@if (Model.SentimentResult != null || Model.UserOutput != null)
+@if (Model.TextSummary != null)
 {
-    <ul>
-        <li>Positive Score: @(Model.SentimentResult != null ? Model.SentimentResult.PositiveScore.ToString("F2") + "%" : (Model.UserOutput.PositiveProbability * 100).ToString("F2") + "%")</li>
-        <li>Negative Score: @(Model.SentimentResult != null ? Model.SentimentResult.NegativeScore.ToString("F2") + "%" : (Model.UserOutput.NegativeProbability * 100).ToString("F2") + "%")</li>
-        <li>Neutral Score: @(Model.SentimentResult != null ? Model.SentimentResult.NeutralScore.ToString("F2") + "%" : (Model.UserOutput.NeutralProbability * 100).ToString("F2") + "%")</li>
-        <li>Compound Score: @(Model.SentimentResult?.CompoundScore.ToString("F2") ?? Model.UserOutput.CompoundScore.ToString("F2"))</li>
-    </ul>
+    <h2>Summary of your text:</h2>
+    <p>@(Model.TextSummary.Summary)</p>
 
-    <!-- Download CSV Button -->
-    <a href="@Url.Action("DownloadCsv", "Home")" class="btn btn-primary">Download Results as CSV</a>
+    <a href="@Url.Action("DownloadSummary", "Home")" class="btn btn-primary">Download Summary</a>
 
-    <!-- Pie Chart Container with Smaller Size -->
-    <canvas id="sentimentPieChart" width="300" height="300"></canvas>
+}else{
+    
+    <h2>Sentiment Analysis Result</h2>
+    @if (Model.SentimentResult != null || Model.UserOutput != null)
+    {
+        <ul>
+            <li>Positive Score: @(Model.SentimentResult != null ? Model.SentimentResult.PositiveScore.ToString("F2") + "%" : (Model.UserOutput.PositiveProbability * 100).ToString("F2") + "%")</li>
+            <li>Negative Score: @(Model.SentimentResult != null ? Model.SentimentResult.NegativeScore.ToString("F2") + "%" : (Model.UserOutput.NegativeProbability * 100).ToString("F2") + "%")</li>
+            <li>Neutral Score: @(Model.SentimentResult != null ? Model.SentimentResult.NeutralScore.ToString("F2") + "%" : (Model.UserOutput.NeutralProbability * 100).ToString("F2") + "%")</li>
+            <li>Compound Score: @(Model.SentimentResult?.CompoundScore.ToString("F2") ?? Model.UserOutput.CompoundScore.ToString("F2"))</li>
+        </ul>
 
-    <!-- Link to Upload Another File -->
-    <a href="@Url.Action("Index")">Upload another file</a>
-}
-else
-{
-    <p>No result to display.</p>
-}
+        <a href="@Url.Action("DownloadCsv", "Home")" class="btn btn-primary">Download Results as CSV</a>
 
-<!-- Include Chart.js from CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <canvas id="sentimentPieChart" width="300" height="300"></canvas>
 
-<script>
-    // Get sentiment scores based on available data in the model
-    const positiveScore = @(Model.SentimentResult?.PositiveScore ?? Model.UserOutput.PositiveProbability * 100);
-    const negativeScore = @(Model.SentimentResult?.NegativeScore ?? Model.UserOutput.NegativeProbability * 100);
-    const neutralScore = @(Model.SentimentResult?.NeutralScore ?? Model.UserOutput.NeutralProbability * 100);
+    }
 
-    // Initialize Pie Chart Function
-    function initializeSentimentPieChart() {
-        const ctx = document.getElementById('sentimentPieChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Positive', 'Negative', 'Neutral'],
-                datasets: [{
-                    label: 'Sentiment Scores',
-                    data: [positiveScore, negativeScore, neutralScore],
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.2)', // Green for Positive
-                        'rgba(255, 99, 132, 0.2)', // Red for Negative
-                        'rgba(255, 206, 86, 0.2)'  // Yellow for Neutral
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(255, 206, 86, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                    },
-                    tooltip: {
-                        enabled: true,
+    else
+    {
+        <p>No result to display.</p>
+    }
+
+    <!-- Including Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const positiveScore = @(Model.SentimentResult?.PositiveScore ?? Model.UserOutput.PositiveProbability * 100);
+        const negativeScore = @(Model.SentimentResult?.NegativeScore ?? Model.UserOutput.NegativeProbability * 100);
+        const neutralScore = @(Model.SentimentResult?.NeutralScore ?? Model.UserOutput.NeutralProbability * 100);
+
+        function initializeSentimentPieChart() {
+            const ctx = document.getElementById('sentimentPieChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral'],
+                    datasets: [{
+                        label: 'Sentiment Scores',
+                        data: [positiveScore, negativeScore, neutralScore],
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.2)', // Green 
+                            'rgba(255, 99, 132, 0.2)', // Red 
+                            'rgba(255, 206, 86, 0.2)'  // Yellow 
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            enabled: true,
+                        }
                     }
                 }
-            }
-        });
-    }
+            });
+        }
 
-    // Only initialize the chart if data is available
-    if (positiveScore != null && negativeScore != null && neutralScore != null) {
-        initializeSentimentPieChart();
-    }
-</script>
+        if (positiveScore != null && negativeScore != null && neutralScore != null) {
+            initializeSentimentPieChart();
+        }
+    </script>
 
-<style>
-    /* Set a specific size for the canvas */
-    #sentimentPieChart {
-        max-width: 300px; /* Maximum width */
-        max-height: 300px; /* Maximum height */
-    }
-</style>
+    <style>
+        #sentimentPieChart {
+            max-width: 300px; 
+            max-height: 300px; 
+        }
+    </style>
+
+
+}
+ <a href="@Url.Action("Index")">Upload another file</a>
+

@@ -32,7 +32,7 @@ namespace MLInt.Controllers
             {
                 model.FileName = uploadedFile.FileName;
 
-                // Save the uploaded file
+                // Saving the uploaded file
                 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
                 Directory.CreateDirectory(uploadsPath); // Ensure directory exists
                 var filePath = Path.Combine(uploadsPath, uploadedFile.FileName);
@@ -90,13 +90,29 @@ namespace MLInt.Controllers
                     
                     Console.WriteLine(combinedResult.UserOutput.Sentiment);
                 }
+                else if (selectedAlgorithm == "Algorithm2"){
+                    try{
+                        Console.WriteLine("Entering Text Summarizing algorithm");
+                        var textforsumarry = await System.IO.File.ReadAllTextAsync(filePath);
+                        Console.WriteLine(textforsumarry);
+                        string summaryText = TextRankSummarizer.Summarize(textforsumarry);
+
+                        combinedResult = new CombinedResultViewModel{
+                            TextSummary = new TextSummaryModel { Summary = summaryText }
+                        };
+                        Console.WriteLine($"{combinedResult.TextSummary.Summary}");
+
+                    }catch(Exception ex){
+                        Console.WriteLine($"Error occured in summary:{ex.Message}");
+                    }
+                   
+                }
                 else
                 {
                     ModelState.AddModelError("", "Invalid algorithm selected.");
                     return View("Index", model);
                 }
 
-                // Store result in TempData for download
                 TempData["CombinedResult"] = Newtonsoft.Json.JsonConvert.SerializeObject(combinedResult);
             }
             catch (Exception ex)
@@ -106,7 +122,6 @@ namespace MLInt.Controllers
             }
             finally
             {
-                // Clean up uploaded file after processing
                 if (System.IO.File.Exists(filePath))
                 {
                     System.IO.File.Delete(filePath);
@@ -120,16 +135,13 @@ namespace MLInt.Controllers
             return View("Index", model);
         }
 
-        // Action method to handle CSV file download
         public IActionResult DownloadCsv()
         {
-            // Retrieve the result from TempData
             if (TempData["CombinedResult"] != null)
             {
                 var combinedResultJson = TempData["CombinedResult"].ToString();
                 var combinedResult = Newtonsoft.Json.JsonConvert.DeserializeObject<CombinedResultViewModel>(combinedResultJson);
 
-                // Generate CSV content in memory
                 var csvContent = new StringBuilder();
                 if (combinedResult.SentimentResult != null)
                 {
@@ -141,6 +153,10 @@ namespace MLInt.Controllers
                     csvContent.AppendLine("PositiveScore,NegativeScore,NeutralScore,CompoundScore");
                     csvContent.AppendLine($"{combinedResult.UserOutput.PositiveProbability},{combinedResult.UserOutput.NegativeProbability},{combinedResult.UserOutput.NeutralProbability},{combinedResult.UserOutput.CompoundScore}");
                 }
+                else if (combinedResult.TextSummary != null){
+                    Console.WriteLine("text summary");
+                    csvContent.AppendLine($"Summary: {combinedResult.TextSummary.Summary}");
+                }
 
                 // Return CSV as a file for download without permanent storage
                 var fileBytes = Encoding.UTF8.GetBytes(csvContent.ToString());
@@ -149,6 +165,30 @@ namespace MLInt.Controllers
 
             return RedirectToAction("Index");
         }
+        public IActionResult DownloadSummary()
+{
+    if (TempData["CombinedResult"] != null)
+    {
+        var combinedResultJson = TempData["CombinedResult"].ToString();
+        var combinedResult = Newtonsoft.Json.JsonConvert.DeserializeObject<CombinedResultViewModel>(combinedResultJson);
+
+        var summaryContent = new StringBuilder();
+        if (combinedResult.TextSummary != null)
+        {
+            summaryContent.AppendLine($"Summary: {combinedResult.TextSummary.Summary}");
+        }
+        else
+        {
+            summaryContent.AppendLine("No summary available.");
+        }
+
+        var fileBytes = Encoding.UTF8.GetBytes(summaryContent.ToString());
+        return File(fileBytes, "text/plain", $"Summary_{DateTime.Now:yyyyMMddHHmmss}.txt");
+    }
+
+    return RedirectToAction("Index");
+}
+
 
         public IActionResult Index()
         {
