@@ -5,15 +5,15 @@ public class TextRankSummarizer
         var sentences = TextHelper.TokenizeSentences(text);
         int totalSentences = sentences.Count;
         
-        // Determine the number of summary sentences (e.g., 30% of total sentences)
+      
         int sentenceCount = (int)(totalSentences * 0.4);
-        sentenceCount = Math.Max(1, sentenceCount); // Ensure at least 1 sentence in summary
+        sentenceCount = Math.Max(1, sentenceCount); //ensuring that there is atleast 1 sentence
         
-        // Step 1: Build TF-IDF vectors for each sentence
+        // Building TF-IDF vectors for each sentence
         var tfIdfScores = TextHelper.GetTfIdfScores(sentences);
         double[,] similarityMatrix = new double[totalSentences, totalSentences];
 
-        // Step 2: Populate similarity matrix using cosine similarity
+        // cosine similarity
         for (int i = 0; i < totalSentences; i++)
         {
             for (int j = i + 1; j < totalSentences; j++)
@@ -26,9 +26,9 @@ public class TextRankSummarizer
             }
         }
 
-        // Step 3: Implement TextRank (similar to PageRank)
-        double[] ranks = Enumerable.Repeat(1.0, totalSentences).ToArray(); // Initial rank values
-        double dampingFactor = 0.85, epsilon = 0.001; // Damping factor and convergence threshold
+        // TextRank 
+        double[] ranks = Enumerable.Repeat(1.0, totalSentences).ToArray(); 
+        double dampingFactor = 0.85, epsilon = 0.001; 
         bool converged;
 
         do
@@ -52,7 +52,7 @@ public class TextRankSummarizer
             ranks = newRanks;
         } while (!converged);
 
-        // Step 4: Select top sentences by rank
+        // Selecting top sentences by rank
         var topSentences = sentences.Zip(ranks, (sentence, rank) => new { sentence, rank })
                                     .OrderByDescending(x => x.rank)
                                     .Take(sentenceCount)

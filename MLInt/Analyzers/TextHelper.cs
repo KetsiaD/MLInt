@@ -4,7 +4,7 @@ using System.Linq;
 
 public static class TextHelper
 {
-    // Tokenizes a text into sentences
+    // Tokenizing a text into sentences
     public static List<string> TokenizeSentences(string text)
     {
         try{
@@ -24,20 +24,19 @@ public static class TextHelper
 {
     try
     {
-        // Determine the maximum length
+        // Determing maximum length
         int maxLength = Math.Max(vectorA.Length, vectorB.Length);
 
         double dotProduct = 0, magnitudeA = 0, magnitudeB = 0;
 
-        // Iterate through the maximum length
         for (int i = 0; i < maxLength; i++)
         {
-            double valueA = i < vectorA.Length ? vectorA[i] : 0; // Use 0 if index is out of bounds
-            double valueB = i < vectorB.Length ? vectorB[i] : 0; // Use 0 if index is out of bounds
+            double valueA = i < vectorA.Length ? vectorA[i] : 0; // Using 0 if index is out of bounds
+            double valueB = i < vectorB.Length ? vectorB[i] : 0; 
 
-            dotProduct += valueA * valueB; // Calculate dot product
-            magnitudeA += Math.Pow(valueA, 2); // Calculate magnitude of vectorA
-            magnitudeB += Math.Pow(valueB, 2); // Calculate magnitude of vectorB
+            dotProduct += valueA * valueB; // dot product
+            magnitudeA += Math.Pow(valueA, 2); // magnitude of vectorA
+            magnitudeB += Math.Pow(valueB, 2); // magnitude of vectorB
         }
 
         return (magnitudeA == 0 || magnitudeB == 0) ? 0 : dotProduct / (Math.Sqrt(magnitudeA) * Math.Sqrt(magnitudeB));
@@ -50,7 +49,7 @@ public static class TextHelper
 }
 
 
-    // Converts sentences to TF-IDF vectors for basic similarity calculation
+    // using tf-idf 
     public static Dictionary<string, double> GetTfIdfScores(List<string> sentences)
     {
         try{
