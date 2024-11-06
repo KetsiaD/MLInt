@@ -2,7 +2,7 @@ public class TextRankSummarizer
 {
     public static string Summarize(string text)
     {
-        var sentences = TextHelper.TokenizeSentences(text);
+        var sentences = TextHelper.TokenizeSentencesOrParagraphs(text);
         int totalSentences = sentences.Count;
         
       

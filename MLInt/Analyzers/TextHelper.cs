@@ -5,19 +5,29 @@ using System.Linq;
 public static class TextHelper
 {
     // Tokenizing a text into sentences
-    public static List<string> TokenizeSentences(string text)
+    public static List<string> TokenizeSentencesOrParagraphs(string text)
+{
+    try
     {
-        try{
-            
-        
-            return text.Split(new[] { '.', '!', '?' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(sentence => sentence.Trim())
-                    .ToList();
-            } catch(Exception ex){
-                Console.WriteLine($"Error in Tokenize sentence : {ex.Message}");
-                return null;
-            }
+        //checking if paragraphs are more than 5
+        var paragraphs = text.Split(new[] { "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+        if (paragraphs.Length > 5)
+        {
+            return paragraphs.Select(paragraph => paragraph.Trim()).ToList();
+        }
+
+        return text.Split(new[] { '.', '!', '?' }, StringSplitOptions.RemoveEmptyEntries)
+                   .Select(sentence => sentence.Trim())
+                   .ToList();
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error in TokenizeSentencesOrParagraphs: {ex.Message}");
+        return null;
+    }
+}
+
 
     // Calculates cosine similarity between two sentences represented as vectors
     public static double CosineSimilarity(double[] vectorA, double[] vectorB)
