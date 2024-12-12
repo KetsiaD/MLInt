@@ -6,7 +6,7 @@ public class TextRankSummarizer
         int totalSentences = sentences.Count;
         
       
-        int sentenceCount = (int)(totalSentences * 0.4);
+        int sentenceCount = (int)(totalSentences * 0.3);
         sentenceCount = Math.Max(1, sentenceCount); //ensuring that there is atleast 1 sentence
         
         // Building TF-IDF vectors for each sentence

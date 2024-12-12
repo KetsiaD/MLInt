@@ -182,14 +182,14 @@ public async Task<SentimentOutputModel> predictedSentiment(string input)
     // Lowercase
     text = text.ToLower();
     
-    // Remove punctuation
+    
     text = Regex.Replace(text, @"[^\w\s]", "");
     
-    // Remove stop words
+    //stop words
     var stopWords = new HashSet<string> { "the", "is", "at", "which", "on" };
     text = string.Join(" ", text.Split(' ').Where(word => !stopWords.Contains(word)));
     
-    // Remove extra whitespaces
+    //  extra whitespaces
     text = Regex.Replace(text, @"\s+", " ").Trim();
     
     return text;

@@ -100,7 +100,6 @@ namespace MLInt.Controllers
                         combinedResult = new CombinedResultViewModel{
                             TextSummary = new TextSummaryModel { Summary = summaryText }
                         };
-                        Console.WriteLine($"{combinedResult.TextSummary.Summary}");
 
                     }catch(Exception ex){
                         Console.WriteLine($"Error occured in summary:{ex.Message}");
@@ -152,10 +151,6 @@ namespace MLInt.Controllers
                 {
                     csvContent.AppendLine("PositiveScore,NegativeScore,NeutralScore,CompoundScore");
                     csvContent.AppendLine($"{combinedResult.UserOutput.PositiveProbability},{combinedResult.UserOutput.NegativeProbability},{combinedResult.UserOutput.NeutralProbability},{combinedResult.UserOutput.CompoundScore}");
-                }
-                else if (combinedResult.TextSummary != null){
-                    Console.WriteLine("text summary");
-                    csvContent.AppendLine($"Summary: {combinedResult.TextSummary.Summary}");
                 }
 
                 // Return CSV as a file for download without permanent storage
