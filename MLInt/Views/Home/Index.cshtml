@@ -1,8 +1,19 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model MLInt.Models.UploadModel
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h2>Upload a File</h2>
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <input type="file" name="uploadedFile" />
+    </div>
+     <div class="form-group">
+        <label for="algorithm">Select Machine Learning tool</label>
+        <select name="algorithm" class="form-control" style="width: 140px" required>
+            <option value="Vader">Vader Sentiment Analysis</option>
+            <option value="Algorithm1">ML.net Sentiment Analysis</option>
+            <option value="Algorithm2">Text Summarizer</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+

@@ -1,27 +1,26 @@
+
+using MLInt.Analyzers;
+
 var builder = WebApplication.CreateBuilder(args);
+  // Initialize Python runtime
+
+builder.Services.AddScoped<VaderSentimentAnalysis>();
+builder.Services.AddScoped<MlSentimentAnalyzer>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
+// Serve static files
 app.UseStaticFiles();
 
-app.UseRouting();
 
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+// Map the default controller route
+app.MapDefaultControllerRoute();
+// app.Lifetime.ApplicationStopping.Register(() =>
+// {
+//     PythonEngine.Shutdown();  // Shutdown Python runtime when the app stops
+// });
 
 app.Run();

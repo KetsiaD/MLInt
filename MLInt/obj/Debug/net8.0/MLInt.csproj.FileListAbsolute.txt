@@ -1,0 +1,9 @@
+/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/obj/Debug/net8.0/MLInt.csproj.AssemblyReference.cache
+/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/obj/Debug/net8.0/MLInt.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/obj/Debug/net8.0/MLInt.AssemblyInfoInputs.cache
+/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/obj/Debug/net8.0/MLInt.AssemblyInfo.cs
+/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/obj/Debug/net8.0/MLInt.csproj.CoreCompileInputs.cache
+/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/obj/Debug/net8.0/MLInt.MvcApplicationPartsAssemblyInfo.cache
+/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/obj/Debug/net8.0/MLInt.RazorAssemblyInfo.cache
+/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/obj/Debug/net8.0/MLInt.RazorAssemblyInfo.cs
+/Users/ketsiadusenge/Desktop/Capstone/MLInt/MLInt/obj/Debug/net8.0/MLInt.sourcelink.json
